@@ -1,0 +1,38 @@
+diff --git a/homebox.module b/homebox.module
+index 0d0407a..f2b015d 100644
+--- a/homebox.module
++++ b/homebox.module
+@@ -377,6 +377,16 @@ function homebox_build($page) {
+     }
+   }
+ 
++  // If custom widths aren't set, make each width a percentage of the total available.
++  if (!count($page->settings['widths'])) {
++    $num_regions = count($regions);
++    for ($i = 1; $i <= $num_regions; $i++) {
++      // We use a combination of round() and floor() to get this rounded to two decimal places
++      // since the $mode argument isn't introducted into round() until PHP 5.3.0.
++      $page->settings['widths'][$i] = round(floor((100 / $num_regions) * 100) / 100, 2);
++    }
++  }
++
+   // Sort each region/column based on key value
+   // Also separate the regions into rows based on the region widths
+   $sum_width = 0;
+@@ -414,16 +424,6 @@ function homebox_build($page) {
+     $save_form = NULL;
+   }
+ 
+-  // If custom widths aren't set, make each width a percentage of the total available.
+-  if (!count($page->settings['widths'])) {
+-    $num_regions = count($regions);
+-    for ($i = 1; $i <= $num_regions; $i++) {
+-      // We use a combination of round() and floor() to get this rounded to two decimal places
+-      // since the $mode argument isn't introducted into round() until PHP 5.3.0.
+-      $page->settings['widths'][$i] = round(floor((100 / $num_regions) * 100) / 100, 2);
+-    }
+-  }
+-
+   // Build output
+   $output = theme('homebox', array('regions' => $regions, 'available_blocks' => $allowed_blocks, 'column_count' => $column_count, 'page' => $page, 'add_links' => $add_links, 'save_form' => $save_form));
+ 
