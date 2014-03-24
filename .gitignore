@@ -1,0 +1,5 @@
+drupal/sites/*/private
+tmp
+private
+*~
+*.sql

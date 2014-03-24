@@ -1,0 +1,28 @@
+web1:
+  document_root: /public
+  name: daiweb1
+  shared_writable_dirs:
+    - public/sites/default/files
+    - tmp
+    - private
+  php_version: 5.3.10
+  php_extensions:
+    - hash
+    - json
+    - pdo
+    - apc
+    - mysqli
+    - gd
+    - xml
+    - pdo_mysql
+    - mcrypt
+    - mbstring
+    - memcached
+    - uploadprogress
+  after_build:
+    - "mv settings.php public/sites/default/settings.php"
+    - "chmod 444 public/sites/default/settings.php"
+
+db1:
+  name: daidb1
+  type: mysql
