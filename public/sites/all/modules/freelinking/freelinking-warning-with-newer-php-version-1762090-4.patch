@@ -1,0 +1,21 @@
+commit b21a1a7b8966e8548ae9c1122a4dbe188e1c6cbc
+Author: Uccio <uccio@32370.no-reply.drupal.org>
+Date:   Mon Feb 3 17:52:24 2014 +0100
+
+    FIX: 1762090
+
+diff --git a/freelinking.module b/freelinking.module
+index 02a5598..148c0e9 100644
+--- a/freelinking.module
++++ b/freelinking.module
+@@ -86,8 +86,9 @@ function _freelinking_process($text, $filter) {
+       $indicator = substr($match[1], 0, $delim);
+       $target = substr($match[1], $delim + 1);
+       // find a plugin for the match
++      
+       foreach (array_keys($freelinking) as $plugin) {
+-        if ($plugin['enabled']
++        if ($freelinking[$plugin]['enabled'] == TRUE
+            && preg_match($freelinking[$plugin]['indicator'], $indicator)) {
+           $current_plugin = $plugin;
+         }

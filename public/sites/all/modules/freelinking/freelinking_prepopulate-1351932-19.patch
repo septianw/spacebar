@@ -1,0 +1,221 @@
+diff --git a/freelinking.api.php b/freelinking.api.php
+index 436323a..2aa881f 100644
+--- a/freelinking.api.php
++++ b/freelinking.api.php
+@@ -15,7 +15,7 @@
+  * @see http://drupal.org/node/???
+  */
+ function hook_freelinking() {
+-  $plugins['myplugin'] array(
++  $plugins['myplugin'] = array(
+     'indicator' => '/myplugin/',
+     'translate' => array(' ' => '_'),
+     'replacement' => 'http://example.com/node/%1',
+diff --git a/modules/freelinking_prepopulate/freelinking_prepopulate.module b/modules/freelinking_prepopulate/freelinking_prepopulate.module
+index e2147d5..1bfb42d 100644
+--- a/modules/freelinking_prepopulate/freelinking_prepopulate.module
++++ b/modules/freelinking_prepopulate/freelinking_prepopulate.module
+@@ -32,7 +32,7 @@ function freelinking_prepopulate_freelinking() {
+  */
+ function freelinking_prepopulate_node_callback($target, $plugin) {
+   // Use specified node type or fallback to configuration.
+-  if ($target['type']) {
++  if (isset($target['type'])) {
+     $node_type = check_plain($target['type']);
+   }
+   else {
+@@ -60,7 +60,7 @@ function freelinking_prepopulate_node_callback($target, $plugin) {
+   $query['edit[title]'] = check_plain($target['dest']);
+ 
+   // Use arguments targeted for Prepopulate or get values from current node/page.
+-  if (is_array($target['other']['prepopulate'])) {
++  if (isset($target['other']['prepopulate']) && is_array($target['other']['prepopulate'])) {
+     foreach ($target['other']['prepopulate'] as $field => $value) {
+       $query[$field] = $value;
+     }
+@@ -75,10 +75,12 @@ function freelinking_prepopulate_node_callback($target, $plugin) {
+   // This is not currently restricted by advanced settings, just by the ability
+   // of the FL_P API to recognize arguments from $target
+   $query_override = freelinking_prepopulate_fields_from_array('nodecreate', $target);
+-  foreach ($query_override as $key => $value) {
+-    if ($value) {
+-      $query[$key] = $value;
+-    }
++  if (isset($query_override)) {
++	  foreach ($query_override as $key => $value) {
++	    if ($value) {
++	      $query[$key] = $value;
++	    }
++	  }
+   }
+   return array($title, $url, array(
+       'query' => $query,
+@@ -101,8 +103,11 @@ function freelinking_prepopulate_node_settings() {
+     '#description' => t('Which content type should be created by Freelinking?'),
+   );
+ 
+-  foreach (freelinking_prepopulate_list_fields('nodecreate') as $key => $value) {
+-    $options[$key] = $value['title'];
++  $nodecreate[] = freelinking_prepopulate_list_fields('nodecreate');
++  if (isset($nodecreate)) {
++	  foreach ($nodecreate as $key => $value) {
++      $options[$key] = $value['title'];
++    }
+   }
+   if (empty($options)) {
+     return $form;
+@@ -123,6 +128,8 @@ function freelinking_prepopulate_node_settings() {
+  * Gets the first available type
+  */
+ function _freelinking_prepopulate_default_node_type() {
++  $types = array();
+   $types = node_type_get_names();
+-  return $types[0];
++  $types = array_keys($types);
++  return array_shift($types);
+ }
+diff --git a/modules/freelinking_prepopulate/freelinking_prepopulate.utilities.inc b/modules/freelinking_prepopulate/freelinking_prepopulate.utilities.inc
+index 60949eb..e15d084 100644
+--- a/modules/freelinking_prepopulate/freelinking_prepopulate.utilities.inc
++++ b/modules/freelinking_prepopulate/freelinking_prepopulate.utilities.inc
+@@ -27,39 +27,43 @@ function freelinking_prepopulate_fields_from_page($fields, $plugin = 'nodecreate
+   $query = array();
+   $index = $plugin . serialize($fields);
+   if (!$prepopulate[$index]) {
+-    $prepopulate[$index] = array_intersect_key(freelinking_prepopulate_list_fields($plugin), $fields);
++	  if (is_array(freelinking_prepopulate_list_fields($plugin))) {
++      $prepopulate[$index] = array_intersect_key(freelinking_prepopulate_list_fields($plugin), $fields);
++    }
+   }
+ 
+   if ($plugin == 'nodecreate' && arg(0) == 'node' && is_numeric(arg(1)) && !arg(2)) {
+     $object = node_load(arg(1));
+   }
+ 
+-  foreach ($prepopulate[$index] as $field => $definition) {
+-    switch ($field) {
+-      case 'og':
+-        $group = og_get_group_context();
+-        $query[$definition['prepopulate']] = $group->nid;
+-        break;
+-      case 'taxonomy':
+-        if (!$object->taxonomy) {
+-          break;
+-        }
+-        foreach ($object->taxonomy as $term) {
+-          $query[$definition['prepopulate'] . '[' . $term->vid . ']'] .= $term->name . ',';
+-        }
+-        break;
+-      case 'book':
+-        if ($node->book) {
+-          $query['parent'] = $object->book['mlid'];
+-        }
+-        break;
+-      default:
+-        if ($object->$field) {
+-          $query[$definition['prepopulate']] = $object->field;
+-        }
+-        break;
+-    }
+-  }
++  if (isset($prepopulate[$index]) && is_array($prepopulate[$index])) {
++	  foreach ($prepopulate[$index] as $field => $definition) {
++	    switch ($field) {
++	      case 'og':
++	        $group = og_get_group_context();
++	        $query[$definition['prepopulate']] = $group->nid;
++	        break;
++	      case 'taxonomy':
++	        if (!$object->taxonomy) {
++	          break;
++	        }
++	        foreach ($object->taxonomy as $term) {
++	          $query[$definition['prepopulate'] . '[' . $term->vid . ']'] .= $term->name . ',';
++	        }
++	        break;
++	      case 'book':
++	        if ($node->book) {
++	          $query['parent'] = $object->book['mlid'];
++	        }
++	        break;
++	      default:
++	        if ($object->$field) {
++	          $query[$definition['prepopulate']] = $object->field;
++	        }
++	        break;
++	    }
++	  }
++	}
+   return $query;
+ }
+ 
+@@ -75,31 +79,35 @@ function freelinking_prepopulate_fields_from_page($fields, $plugin = 'nodecreate
+  */
+ function freelinking_prepopulate_fields_from_array($plugin, $target) {
+   $query = array();
+-  $prepopulate = array_intersect_key(freelinking_prepopulate_list_fields($plugin), $target);
+-  foreach ($prepopulate as $field => $values) {
+-    // If it's an organic group, break the groups out to separate values.
+-    if ($field == 'og') {
+-      $query[$values['prepopulate']] = $target[$field];
+-    }
+-    // If it's a taxonomy, special handling of vocabulary is necessary.
+-    elseif ($field == 'taxonomy') {
+-      if (!strpos($target[$field], ':')) {
+-        $query[$values['prepopulate'] . '[1]'] = $target[$field];
+-        continue;
+-      }
+-      list($vocab, $terms) = explode(':', $target[$field]);
+-
+-      if (is_int($vocab)) {
+-        $query[$values['prepopulate'] . '[' . $vocab . ']'] = $terms;
+-      }
+-      else {
+-        $query[$values['prepopulate'] . '[1]'] = $terms;
+-      }
+-    }
+-    else {
+-      $query[$values['prepopuplate']] = $target[$field];
+-    }
++  if (is_array($target && freelinking_prepopulate_list_fields($plugin))) {
++    $prepopulate[] = array_intersect_key(freelinking_prepopulate_list_fields($plugin), $target);
+   }
++  if (isset($prepopulate)) {
++	  foreach ($prepopulate as $field => $values) {
++	    // If it's an organic group, break the groups out to separate values.
++	    if ($field == 'og') {
++	      $query[$values['prepopulate']] = $target[$field];
++	    }
++	    // If it's a taxonomy, special handling of vocabulary is necessary.
++	    elseif ($field == 'taxonomy') {
++	      if (!strpos($target[$field], ':')) {
++	        $query[$values['prepopulate'] . '[1]'] = $target[$field];
++	        continue;
++	      }
++	      list($vocab, $terms) = explode(':', $target[$field]);
++
++	      if (is_int($vocab)) {
++	        $query[$values['prepopulate'] . '[' . $vocab . ']'] = $terms;
++	      }
++	      else {
++	        $query[$values['prepopulate'] . '[1]'] = $terms;
++	      }
++	    }
++	    else {
++	      $query[$values['prepopuplate']] = $target[$field];
++	    }
++	  }
++	}
+   return $query;
+ }
+ 
+@@ -182,6 +190,7 @@ function freelinking_prepopulate_list_fields($plugin = 'nodecreate', $field = NU
+       // To Be Implemented
+     }
+   }
+-
+-  return array_intersect_key($fields, $plugins[$plugin]);
++  if (is_array($fields && $plugins[$plugin])) {
++    return array_intersect_key($fields, $plugins[$plugin]);
++  }
+ }
