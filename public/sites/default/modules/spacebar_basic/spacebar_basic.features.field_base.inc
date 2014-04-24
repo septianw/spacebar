@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * test_basic_features.features.field_base.inc
+ * spacebar_basic.features.field_base.inc
  */
 
 /**
  * Implements hook_field_default_field_bases().
  */
-function test_basic_features_field_default_field_bases() {
+function spacebar_basic_field_default_field_bases() {
   $field_bases = array();
 
   // Exported field_base: 'body'

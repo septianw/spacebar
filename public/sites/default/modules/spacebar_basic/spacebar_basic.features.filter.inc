@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * test_basic_features.features.filter.inc
+ * spacebar_basic.features.filter.inc
  */
 
 /**
  * Implements hook_filter_default_formats().
  */
-function test_basic_features_filter_default_formats() {
+function spacebar_basic_filter_default_formats() {
   $formats = array();
 
   // Exported format: wiki.

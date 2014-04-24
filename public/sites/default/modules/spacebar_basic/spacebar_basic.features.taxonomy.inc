@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * test_basic_features.features.taxonomy.inc
+ * spacebar_basic.features.taxonomy.inc
  */
 
 /**
  * Implements hook_taxonomy_default_vocabularies().
  */
-function test_basic_features_taxonomy_default_vocabularies() {
+function spacebar_basic_taxonomy_default_vocabularies() {
   return array(
     'business_area' => array(
       'name' => 'Business Area',
@@ -23,6 +23,14 @@ function test_basic_features_taxonomy_default_vocabularies() {
       'description' => '',
       'hierarchy' => 0,
       'module' => 'taxonomy',
+      'weight' => 0,
+    ),
+    'document_types' => array(
+      'name' => 'Document types',
+      'machine_name' => 'document_types',
+      'description' => NULL,
+      'hierarchy' => 2,
+      'module' => 'document',
       'weight' => 0,
     ),
     'enterprise_system' => array(

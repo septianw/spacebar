@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * test_basic_features.features.field_instance.inc
+ * spacebar_basic.features.field_instance.inc
  */
 
 /**
  * Implements hook_field_default_field_instances().
  */
-function test_basic_features_field_default_field_instances() {
+function spacebar_basic_field_default_field_instances() {
   $field_instances = array();
 
   // Exported field_instance: 'node-book-body'

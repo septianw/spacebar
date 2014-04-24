@@ -1,13 +1,13 @@
 <?php
 /**
  * @file
- * test_basic_features.features.user_role.inc
+ * spacebar_basic.features.user_role.inc
  */
 
 /**
  * Implements hook_user_default_roles().
  */
-function test_basic_features_user_default_roles() {
+function spacebar_basic_user_default_roles() {
   $roles = array();
 
   // Exported role: admin.
