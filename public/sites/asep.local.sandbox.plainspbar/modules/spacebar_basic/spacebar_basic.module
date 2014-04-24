@@ -1,7 +1,0 @@
-<?php
-/**
- * @file
- * Code for the spacebar basic feature.
- */
-
-include_once 'spacebar_basic.features.inc';

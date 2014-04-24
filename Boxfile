@@ -1,6 +1,6 @@
 web1:
   document_root: /public
-  name: daiweb1
+  name: plainspbarweb
   shared_writable_dirs:
     - public/sites/default/files
     - tmp
@@ -24,5 +24,5 @@ web1:
     - "chmod 444 public/sites/default/settings.php"
 
 db1:
-  name: daidb1
+  name: plainspbar
   type: mysql
