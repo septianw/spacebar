@@ -2,8 +2,8 @@
 
 # =========== setting here ===============
 
-user="denna"
-password="BRtSDdCn"
+user="shera"
+password="0XvkFoJH"
 host="127.0.0.1"
 database="plainspbar"
 
@@ -16,6 +16,7 @@ selesai () {
 if [[ -z $1 ]] && [[ -z $2 ]]
 then
 	echo "usage dumpdb.sh <port> <dbfile.sql>"
+	exit 2
 else
 	port=$1
 	dbfile=$2
